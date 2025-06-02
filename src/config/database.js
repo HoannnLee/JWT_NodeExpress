@@ -19,7 +19,6 @@ const dbState = [{
     label: "Disconnecting"
 }];
 
-
 const connection = async () => {
     await mongoose.connect(process.env.MONGO_DB_URL);
     const state = Number(mongoose.connection.readyState);
