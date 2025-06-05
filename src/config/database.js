@@ -1,4 +1,5 @@
 
+// sử dụng thư viện dotenv để quản lý biến môi trường,thực thi nội dung file .env
 require('dotenv').config();
 const mongoose = require('mongoose');
 
