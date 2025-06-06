@@ -1,11 +1,13 @@
+require("dotenv").config();
 const User = require("../models/user");
+const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
 
 const createUserService = async (email, name, password) => {
     try {
-
+        
         const hashPassword = await bcrypt.hash(password,saltRounds);
 
         let result = await User.create({
@@ -42,7 +44,23 @@ const loginService = async (inputEmail, password) => {
                     EM:"Email/Mật khẩu không hợp"
                 }
             }else{
-                return "Create Access Token Success";
+                const payload = {
+                    email: user.email,
+                    name: user.name,
+                }
+
+                const access_token = jwt.sign(
+                    payload,
+                    process.env.JWT_SECRET,
+                    {
+                        expiresIn: process.env.JWT_EXPIRE
+                    }
+                );
+                return  {
+                    access_token ,
+                    email: user.email,
+                    name: user.name,
+                }
             }
         }
         else{
