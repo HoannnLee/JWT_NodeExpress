@@ -7,17 +7,32 @@ const saltRounds = 10;
 
 const createUserService = async (email, name, password) => {
     try {
-        
-        const hashPassword = await bcrypt.hash(password,saltRounds);
+        // 1. kiểm tra xem email đã tồn tại hay chưa
+        const user = await User.findOne({email});
 
-        let result = await User.create({
-            name: name,
-            email: email,
-            password: hashPassword,
-            role: '1' // 1:admin , 0: user
-        })
-        return result;
+        if(user){
+            console.log("Email đã tồn tại!!!");
+            return {
+                EC: 1,
+                EM: "Email đã tồn tại!! Vui lòng sử dụng email khác."
+            }
+        }else{
+            const hashPassword = await bcrypt.hash(password,saltRounds);
 
+            let result = await User.create({
+                name: name,
+                email: email,
+                password: hashPassword,
+                role: '1' // 1:admin , 0: user
+            })
+            return {
+                EC:0,
+                EM:"Bạn đã đăng ký tài khoản thành công. Vui lòng đăng nhập để tiếp tục.",
+                result
+            };
+        }
+
+    
     } catch (error) {
         console.log(error);
         return null;
@@ -49,6 +64,9 @@ const loginService = async (inputEmail, password) => {
                     name: user.name,
                 }
 
+                // tạo chữ ký jwt
+                // const hmac = crypto.createHmac('sha256', );
+                // const signature = hmac.update(JSON.stringify(payload)).digest('base64url');
                 const access_token = jwt.sign(
                     payload,
                     process.env.JWT_SECRET,
@@ -57,6 +75,8 @@ const loginService = async (inputEmail, password) => {
                     }
                 );
                 return  {
+                    EC:0,
+                    EM:"Đăng nhập thành công",
                     access_token ,
                     email: user.email,
                     name: user.name,
@@ -76,9 +96,20 @@ const loginService = async (inputEmail, password) => {
     }
 }
 
+const getUserService = async () => {
+    try {
 
+        let result = await User.find({})
+        return result;
+
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
 
 module.exports = {
     createUserService,
-    loginService
+    loginService,
+    getUserService
 }
