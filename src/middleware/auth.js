@@ -24,6 +24,12 @@ const auth = (req, res, next) => {
             try {
                 const decoded = jwt.verify(token, process.env.JWT_SECRET)
                 // Giải mã và xác thực token với secret từ .env
+
+                // gán dữ liệu cho req
+                req.user = {
+                    name: decoded.name,
+                    email: decoded.email
+                }
                 console.log(decoded)
                 // In ra payload đã giải mã (thường để debug)
             } catch (error) {
